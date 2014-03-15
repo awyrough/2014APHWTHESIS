@@ -1,0 +1,12 @@
+python employeeFileHelper.py OR
+python employeeFileHelper.py PA
+python employeeFileHelper.py RI
+python employeeFileHelper.py SC
+python employeeFileHelper.py SD
+python employeeFileHelper.py TN
+python employeeFileHelper.py UT
+python employeeFileHelper.py VA
+python employeeFileHelper.py WA
+python employeeFileHelper.py WI
+python employeeFileHelper.py WV
+python employeeFileHelper.py WY
