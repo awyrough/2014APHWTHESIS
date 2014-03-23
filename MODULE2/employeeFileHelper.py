@@ -1,17 +1,17 @@
 'OBJECTIVE: SPLIT STATE WIDE EMP/PAT FILES INTO COUNTY FIPS LABELED FILES FOR ALL OF US'
 'READ IN A STATE FILE, CONVERT ZIP CODE TO COUNTY FIPS CODE, CACHE, WRITE TO FILE'
 
-M_PATH = "C:\\Users\\Hill\\Desktop\\Thesis\\Data\\ZipCodes\\"
-O_PATH = 'C:\\Users\\Hill\\Desktop\\Thesis\\Data\\CountyEmployeeFiles\\'
+M_PATH = "C:\\Users\\Hill\\Desktop\\Thesis\\Data\\Employment\\ZipCodes\\"
+O_PATH = 'C:\\Users\\Hill\\Desktop\\Thesis\\Data\\Employment\\CountyEmployeeFiles\\'
 F_PATH = 'C:\\Users\\Hill\\Desktop\\Thesis\\Data\\WorkFlow\\'
-E_PATH = 'C:\\Users\\Hill\\Desktop\\Thesis\\Data\\EmployeePatronage\\Employee Patronage Data\\'
-N_PATH = 'C:\\Users\\Hill\\Desktop\\Thesis\\Data\\EmployeePatronage\\Employee Patronage Data\\CountyFiles\\'
+E_PATH = 'C:\\Users\\Hill\\Desktop\\Thesis\\Data\\Employment\\Employee Patronage Data\\'
+N_PATH = 'C:\\Users\\Hill\\Desktop\\Thesis\\Data\\Employment\\Employee Patronage Data\\CountyFiles\\'
 
 zipdata = []
 namedata = []
 
 import csv
-import employeePatronageReader
+from module2 import py
 from datetime import datetime
 
 
@@ -63,22 +63,19 @@ def read_counties():
 'Match County Name from EMP file to County Name in FIPS Related Data'
 def lookup_name(countyname, code):
     global namedata
-    #print(countyname)
     for j in namedata:
 
         countyname = countyname.strip('"')
         splitter = countyname.split(' ')
 
-        #if (j[0] == '24510'): print(j);print(splitter)
         if (splitter[0] == j[1][0]) and (len(splitter) == 1):
             if (j[0][0:2] == code):
                 return j[0]
-        elif (splitter[0] == j[1][0]) and (splitter[1] == j[1][1]):
+        elif (splitter[0] == j[1][0]) and (splitter[1] == j[1][1]) and (len(splitter)==2):
             if (j[0][0:2] == code):
                 return j[0]
-        elif (len(j[1]) == 3) and (len(splitter) > 1):
-            splitter = countyname.split(' ')
-            if (splitter[0] == j[1][0]) and (splitter[1] == j[1][1]):
+        elif (len(j[1]) == 3) and (len(splitter) > 2):
+            if (splitter[0] == j[1][0]) and (splitter[1] == j[1][1]) and (splitter[2] == j[1][2]):
                 if (j[0][0:2] == code):   
                     return j[0]
         elif (len(j[1]) > 3) and (len(splitter) > 1):
@@ -92,7 +89,7 @@ def rewrite_state(state):
     global namedata 
     global zipdata 
     global allStates
-    allStates = employeePatronageReader.read_states()
+    allStates = module2.py.read_states()
     code = match_abbrev_code(allStates, state)
     zipdata = read_zip_dict()
     data = read_employee_file(state)
@@ -107,8 +104,18 @@ def rewrite_state(state):
     'Iterate Over Rows of Emp File'
     for j in data:
         'Look Up county name to get fips code'
-        if j[5] == 'NA':
-            rowfips = (lookup_zip(j[4]))
+        if j[5] == 'NA':  
+            if (j[2] == 'Hoonah') or (j[2] == 'HOONAH') or (j[2] == 'ANGOON') or (j[2] == 'Angoon')  or (j[2] == 'PELICAN') or (j[2] == 'TENAKEE SPRINGS'): rowfips = '02105'        
+            elif (j[2] == 'Petersburg') or (j[2] == 'PETERSBURG') or (j[2] == 'KAKE') or (j[2] == 'PORT ALEXANDER'): rowfips = '02195';
+            elif (j[2] == 'KLAWOCK') or (j[2] == 'THORNE BAY') or (j[2] == 'METLAKATLA') or (j[2] == 'COFFMAN COVE') or (j[2] == 'CRAIG'): rowfips = '02198'
+            elif (j[2] == 'HYDABURG') or (j[2] == 'POINT BAKER'): rowfips = '02198'
+            elif (j[2] == 'GUSTAVUS') or (j[2] == 'ELFIN COVE'): rowfips = '02105'
+            elif (j[2] == 'SKAWGAY') or (j[2] == 'SKAGWAY'): rowfips = '02230'
+            elif (j[2] == 'WRANGELL'): rowfips = '02275'
+            else: 
+                print(j)
+                break
+                rowfips = (lookup_zip(j[4]))
         else:
             rowfips = lookup_name(j[5], code)
         if rowfips == None: print(j); break
@@ -137,10 +144,4 @@ def rewrite_state(state):
                                  [k[12].strip('"')] +[k[14].strip('"')] + [k[16].strip('"')] + [k[19].strip('"')] + [k[20].strip('"').strip('\n')]) 
     print(state + " took this much time: " + str(datetime.now()-startTime))
             
-
-import sys              
-exec('rewrite_state(sys.argv[1])')    
-
- 
-#namedata = read_counties()
-#print(lookup_name('Baltimore City', '24'))    
+    
