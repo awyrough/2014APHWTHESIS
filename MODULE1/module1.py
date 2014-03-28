@@ -351,9 +351,9 @@ def traveler_type(age, hht):
         travelType=1
     elif age>=16 and age<= 18:
         if temp>=0.99948:
-            travelType=1
-        else:
             travelType=2
+        else:
+            travelType=1
     elif age>=18 and age<=22 or hht == 6:
         if temp<=.9034:
             travelType=3
