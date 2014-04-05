@@ -104,6 +104,9 @@ class schoolCounty:
         
     'Select A County of Schooling Given Home county and types'
     def select_school_county(self, type1, type2):  
+        if len(self.county.neighbors) == 0:
+            return 'home county'
+
         newOptions = []
         idx = 0
         seats = 0
@@ -137,23 +140,23 @@ class schoolCounty:
         if type2 == 'private':
             if type1 == 'elem': 
                 if len(self.elemprivate) != 0:
-                    dists.append(float(self.totalseats) / (min(allDistances) * 0.750)**2)
+                    dists.append(float(self.totalseats) / (min(allDistances) * 0.0750)**2)
             elif type1 == 'mid':
                 if len(self.midprivate) != 0:
-                    dists.append(float(self.totalseats) / (min(allDistances) * 0.750)**2)
+                    dists.append(float(self.totalseats) / (min(allDistances) * 0.0750)**2)
             elif type1 == 'high':
                 if len(self.highprivate) != 0:
-                    dists.append(float(self.totalseats) / (min(allDistances) * 0.750)**2)
+                    dists.append(float(self.totalseats) / (min(allDistances) * 0.0750)**2)
         if type2 == 'public':
             if type1 == 'elem': 
                 if len(self.elempublic) != 0:
-                    dists.append(float(self.totalseats) / (min(allDistances) * 0.750)**2)
+                    dists.append(float(self.totalseats) / (min(allDistances) * 0.0750)**2)
             elif type1 == 'mid':
                 if len(self.midpublic) != 0:
-                    dists.append(float(self.totalseats) / (min(allDistances) * 0.750)**2)
+                    dists.append(float(self.totalseats) / (min(allDistances) * 0.0750)**2)
             elif type1 == 'high':
                 if len(self.highpublic) != 0:
-                    dists.append(float(self.totalseats) / (min(allDistances) * 0.750)**2)
+                    dists.append(float(self.totalseats) / (min(allDistances) * 0.0750)**2)
         if sum(dists) == 0:
             return 'change'
         if sum(dists) != 0:
@@ -200,7 +203,7 @@ class schoolCounty:
         return fouryeardist, twoyeardist, nondist
        
     'Select an Individual School For a Student' 
-    def get_school_by_type(self, type1, type2):
+    def get_school_by_type(self, type1, type2, homelat, homelon):
         if type1 == 'elem' or type1 == 'mid' or type1 == 'high':
             county = self.select_school_county(type1, type2)
             if county == 'change':
@@ -210,52 +213,94 @@ class schoolCounty:
                 return 0
             if type2 == 'public':
                 if type1 == 'elem':
-                    if county == 'home county': school = drawSchool(self.elempublic)
-                    else: school = drawSchool(county.elempublic)
+                    if county == 'home county': 
+                        idx, school = drawSchool(self.elempublic, homelat, homelon); 
+                        if self.elempublic[idx][5] > 1: self.elempublic[idx][5]-=1
+                    else: 
+                        idx, school = drawSchool(county.elempublic, homelat, homelon); 
+                        if county.elempublic[idx][5] > 1: county.elempublic[idx][5]-=1
                 elif type1 == 'mid':
-                    if county == 'home county': school = drawSchool(self.midpublic)
-                    else: school = drawSchool(county.midpublic)
+                    if county == 'home county': 
+                        idx, school = drawSchool(self.midpublic, homelat, homelon); 
+                        if self.midpublic[idx][5] > 1: self.midpublic[idx][5]-=1
+                    else: 
+                        idx, school = drawSchool(county.midpublic, homelat, homelon); 
+                        if county.midpublic[idx][5] > 1: county.midpublic[idx][5]-=1
                 elif type1 == 'high':
-                    if county == 'home county': school = drawSchool(self.highpublic)
-                    else: school = drawSchool(county.highpublic)
+                    if county == 'home county': 
+                        idx, school = drawSchool(self.highpublic, homelat, homelon); 
+                        if self.highpublic[idx][5] > 1: self.highpublic[idx][5]-=1
+                    else: 
+                        idx, school = drawSchool(county.highpublic, homelat, homelon); 
+                        if county.highpublic[idx][5] > 1: county.highpublic[idx][5]-=1
             elif type2 == 'private':  
                 if type1 == 'elem':
-                    if county == 'home county': school = drawSchool(self.elemprivate)
-                    else: school = drawSchool(county.elemprivate)
+                    if county == 'home county': 
+                        if len(self.elemprivate) != 0:
+                            idx, school = drawSchool(self.elemprivate, homelat, homelon); 
+                            if self.elemprivate[idx][7] > 1: self.elemprivate[idx][7]-=1
+                        elif len(self.elemprivate) == 0:
+                            idx, school = drawSchool(self.elempublic, homelat, homelon);
+                        else:
+                            if len(county.elemprivate) == 0:
+                                idx, school = drawSchool(county.elempublic, homelat, homelon)
+                            else: 
+                                idx, school = drawSchool(county.elemprivate, homelat, homelon); 
+                                if county.elemprivate[idx][7] > 1: county.elemprivate[idx][7]-=1
                 elif type1 == 'mid':
-                    if county == 'home county': school = drawSchool(self.midprivate)
-                    else: school = drawSchool(county.midprivate)
+                    if county == 'home county': 
+                        if len(self.midprivate) != 0:
+                            idx, school = drawSchool(self.midprivate, homelat, homelon); 
+                            if (self.midprivate[idx][7] > 1): self.midprivate[idx][7]-=1
+                        elif len(self.midprivate) == 0:
+                            idx, school = drawSchool(self.midpublic, homelat, homelon)
+                        else:
+                            if len(county.midprivate) == 0:
+                                idx, school = drawSchool(county.midpublic, homelat, homelon)
+                            else: 
+                                idx, school = drawSchool(county.midprivate, homelat, homelon); 
+                                if (county.midprivate[idx][7] > 1): county.midprivate[idx][7]-=1
                 elif type1 == 'high':
-                    if county == 'home county': school = drawSchool(self.highprivate)
-                    else: school = drawSchool(county.highprivate)
+                    if county == 'home county':
+                        if len(self.highprivate) != 0: 
+                            idx, school = drawSchool(self.highprivate, homelat, homelon); 
+                            if (self.highprivate[idx][7] > 1): self.highprivate[idx][7]-=1
+                        elif len(self.highprivate) == 0:
+                            idx, school = drawSchool(self.highpublic, homelat, homelon)
+                        else: 
+                            if county.highprivate == 0:
+                                idx, school = drawSchool(county.highpublic, homelat, homelon)
+                            else:
+                                idx, school = drawSchool(county.highprivate, homelat, homelon)
+                            if (county.highprivate[idx][7] > 1): county.highprivate[idx][7]-=1
         elif type1 == 'college' or type1 == 'on campus college':
             if type2 == 'four year':
                 try:
-                    school = self.drawCollege(self.fouryeardist, self.fouryear)
+                    school = self.drawCollege(self.fouryeardist, self.fouryear, homelat, homelon)
                 except (ZeroDivisionError, IndexError): 
                     for j in self.neighborlyschools:
                         try:
-                            school = j.drawCollege(j.fouryeardist, j.fouryear)
+                            school = j.drawCollege(j.fouryeardist, j.fouryear, homelat, homelon)
                             break
                         except (ZeroDivisionError, IndexError):
                             test = True
             elif type2 == 'two year':
                 try:
-                    school = self.drawCollege(self.twoyeardist, self.twoyear)
+                    school = self.drawCollege(self.twoyeardist, self.twoyear, homelat, homelon)
                 except (ZeroDivisionError, IndexError):
                     for j in self.neighborlyschools:
                         try:
-                            school = j.drawCollege(j.fouryeardist, j.fouryear)
+                            school = j.drawCollege(j.fouryeardist, j.fouryear, homelat, homelon)
                             break
                         except (ZeroDivisionError, IndexError):
                             test = True
             elif type2 == 'non deg':
                 try:
-                    school = self.drawCollege(self.nondist, self.nondeg)
+                    school = self.drawCollege(self.nondist, self.nondeg, homelat, homelon)
                 except(ZeroDivisionError, IndexError):
                     for j in self.neighborlyschools:
                         try:
-                            school = j.drawCollege(j.nondist, j.nondeg)
+                            school = j.drawCollege(j.nondist, j.nondeg, homelat, homelon)
                             break
                         except (ZeroDivisionError, IndexError):
                             test = True
@@ -269,9 +314,9 @@ class schoolCounty:
             return 0
     
     'Draw College Institution From List'
-    def drawCollege(self, schoolList, schools):
+    def drawCollege(self, schoolList, schools, homelat, homelon):
         weights= []
-        [weights.append(j[1]) for j in schoolList]
+        [weights.append(float(j[1]) / (distance_between_counties(float(j[len(j)-2]), float(j[len(j)-1]), homelat, homelon) )) for j in schoolList]
         cdf2 = cdf(weights)
         split = random.random()
         idx = bisect.bisect(cdf2, split)
@@ -300,10 +345,13 @@ class schoolCounty:
         elempublic = []; midpublic = []; highpublic = []
         if elem != None:
             [elempublic.append(row) for row in elempublicschools]
+            for j in elempublic: j[5] = int(j[5])
         if mid != None:
             [midpublic.append(row) for row in midpublicschools]
+            for j in midpublic: j[5] = int(j[5])
         if high != None:
             [highpublic.append(row) for row in highpublicschools]
+            for j in highpublic: j[5] = int(j[5])
         return elempublic, midpublic, highpublic
 
     'Initialize Private Schools For County'
@@ -316,6 +364,7 @@ class schoolCounty:
             elem = None
         elemprivate = []; midprivate = []; highprivate = []
         if elem != None:
+            for j in elemprivateschools: j[7] = int(j[7])
             for row in elemprivateschools:
                 if row[6] == '1':
                     elemprivate.append(row)
@@ -353,16 +402,19 @@ class schoolCounty:
         return allTwoYearSchools, allFourYearSchools, allNonDegSchools
 
 'SELECT (NON-SECONDARY) SCHOOL FROM LIST USING ASSEMBLED DISTIRBUTION'
-def drawSchool(schoolList):
+def drawSchool(schoolList, homelat, homelon):
     weights = []
-    if len(schoolList[0]) == 10:
-        [weights.append(float(j[5])) for j in schoolList]
+    if len(schoolList[0]) == 11:
+        [weights.append(float(j[5]) / (distance_between_counties(j[6], j[7], homelat, homelon))**2) for j in schoolList]
+        alldist = []
+        [alldist.append(distance_between_counties(j[6], j[7], homelat, homelon)) for j in schoolList]
+        #return schoolList[alldist.index(min(alldist))]
     else:
-        [weights.append(float(j[7])) for j in schoolList]
+        [weights.append(float(j[7]) / (distance_between_counties(j[4], j[5], homelat, homelon))**2) for j in schoolList]
     cdf2 = cdf(weights)
     split = random.random()
     idx = bisect.bisect(cdf2, split)
-    return schoolList[idx]
+    return idx, schoolList[idx]
 
 'RETURN MILES BETWEEN LATITUDE AND LONGITUDE POINTS '
 def distance_between_counties(lat1, lon1, lat2, lon2):

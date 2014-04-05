@@ -19,6 +19,7 @@ import schoolCounty
 import csv
 import random
 import bisect
+import module3classdump
 
 'Direction of School Data Base'
 schoolDataBase = "C://Users//Hill//Desktop//Thesis//Data//Schools//School Database//"
@@ -131,7 +132,7 @@ def get_school_type(age, gender, hht, homecounty, homestate, privelemmidpop, pub
         # 14 - 18.5 -> MIDDLE SCHOOL (HALF ARE IN HIGH SCHOOL, HALF COLLEGE)
         elif age < 19:
             split = random.random()
-            if split > 0.5:
+            if split > 0.35:
                 type = 'high'
             else: 
                 type = 'college'; 
@@ -166,6 +167,8 @@ def get_school_type(age, gender, hht, homecounty, homestate, privelemmidpop, pub
             if idx == 0: fouryear-=1
             elif idx == 1: twoyear-=1
             else: nondeg-=1
+        #if type2 == 'private':
+        #    type2 = 'public'
         return type, type2, pubelemmidpop, privelemmidpop, pubhighpop, privhighpop, fouryear, twoyear, nondeg
         
 '------------------------------------------------------------------------------------'
@@ -180,7 +183,7 @@ def writeHeaders(pW):
 'ITERATE OVER ALL RESIDENTS WITHIN A STATE, ASSIGN SCHOOL IF QUALIFIED STUDENT'
 def executive(state):
     'Module 3 Output Path'
-    outputPath = "C:\\Users\\Hill\\Desktop\\Thesis\\Data\\Output\\Module3\\"
+    outputPath = "E:\\Thesis\\Output\\Module 3\\Third Runs\\"
     'Module 2 Input Path'
     inputPath = "D:\\Thesis\\Output\\Module2 Output\\"
     'Begin Reporting'
@@ -190,11 +193,12 @@ def executive(state):
     fname = inputPath + state + 'Module2NN2ndRun.csv'
     f = open(fname, 'r')
     personReader = csv.reader(f , delimiter= ',')
-    out = open(outputPath + str(state + 'Module3NN1stRun.csv'), 'w+', encoding='utf8')
+    out = open(outputPath + str(state + 'Module3NN3rdRun.csv'), 'w+', encoding='utf8')
     personWriter = csv.writer(out, delimiter=',', lineterminator='\n')
     writeHeaders(personWriter)
     trailingFIPS = ''
-
+    countyNameData = module3classdump.read_counties()
+    states = module3classdump.read_states()
     'Gather State Enrollment Data'
     statehigh, stateelemmid = read_state_enrollment(state)
     privEleMidPop, pubEleMidPop, privHighPop, pubHighPop = scale_public_and_private(statehigh, stateelemmid)
@@ -208,6 +212,7 @@ def executive(state):
         'Gather Personal Data of Resident'
         homeCounty = row[1]; homeState = row[0]; workCounty = row[14]
         age = int(row[9]); gender = int(row[10]); hht = int(row[5])
+        homelat = float(row[6]); homelon = float(row[7])
         'Update County of Residence, Prepare School County Object'
         if len(homeState+homeCounty) == 4:
             newCounty = '0'+homeState+homeCounty
@@ -227,23 +232,28 @@ def executive(state):
                                                                                                                      privEleMidPop, pubEleMidPop, privHighPop, pubHighPop,
                                                                                                                      bachormore, assoc, non)
         'Get School For Student'
-        school = homecounty.get_school_by_type(type1, type2)
+        school = homecounty.get_school_by_type(type1, type2, homelat, homelon)
+        #print(school)
         'Gather Output From School Selected (Need to Deal With Different Formats of School Data'
         if school == 1 or school == 0:
             name = 'NA'
             schoollat = 'NA'
             schoollon = 'NA'
+            county = 'NA'
         else:
             if len(school) == 17:
                 name = school[0]
                 schoollat = school[15]
                 schoollon = school[16]
+                county = module3classdump.lookup_name(school[5], module3classdump.match_abbrev_code(states, school[3]), countyNameData)
             elif len(school) == 8:
                 name = school[0]
                 schoollat = school[4]
                 schoollon = school[5]
+                county = module3classdump.match_abbrev_code(states, school[1]) + school[2]
             elif len(school) == 11:
                 name = school[3]
+                county = school[2]
                 schoollat = school[6]
                 schoollon = school[7]
             else:
@@ -254,11 +264,15 @@ def executive(state):
         elif school != 1:
             studentCount+=1
         count+=1
+        #if studentCount > 10: break
         'Write School Output' '(School name, county, Lat, Lon, Enrollment)'
-        personWriter.writerow(row + [name] + [schoollat] + [schoollon])
+        personWriter.writerow(row + [name] + [county] + [schoollat] + [schoollon])
     print(state + " took this much time: " + str(datetime.now()-startTime))
     print('students ' + str(studentCount))
     print('unassigned ' + str(specCount))
     print('pop ' + str(count))
+
+import cProfile    
 import sys
-exec('executive(sys.argv[1])')
+#exec('executive("Hawaii")')
+cProfile.run("exec('executive(sys.argv[1])')")

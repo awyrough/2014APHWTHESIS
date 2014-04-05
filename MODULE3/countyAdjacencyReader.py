@@ -211,6 +211,8 @@ class j2wDist:
             count += 1
         return it
 
+#test = read_data('22063')
+#test.print_county()
 #stlouis = read_data('29510')
 #stlouis.print_county()
 #for j in stlouis.neighbors:
