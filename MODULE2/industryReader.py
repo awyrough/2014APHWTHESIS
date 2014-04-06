@@ -6,42 +6,37 @@ Author: A.P. Hill Wyrough
 version date: 3/23/14
 Python 3.3
 
-Purpose: This set of methods and classes provides operations enabling the selection of an industry of work for a particular
+PURPOSE: This set of methods and classes provides operations enabling the selection of an industry of work for a particular
 worker. It used by workPlaceHelper.py. It reads in the ACS Industry Participation by Sex by Median Income and prepares that 
 dataset for operations, extracting the relevant information.
 
 Relies on access to the ACS Industry data.
 
-Dependencies: None
+DEPENDENCIES: None
 
 Note: None of this code is taken from Mufti's Module 2 Synthesizer which performs all of these tasks in an entirely different way.
 
 """
-
 import math
 import random
 import bisect
 import numpy
-
 'County Employment Path'
 C_PATH = 'C:\\Users\\Hill\\Desktop\\Thesis\\Data\\Employment\\CountyEmployeeFiles\\'
 E_PATH = 'C:\\Users\\Hill\\Desktop\\Thesis\\Data\\Employment\\'
 M_PATH = "C:\\Users\\Hill\\Desktop\\Thesis\\Data\\"
-
 'Match State Code to State Abbrev'
 def match_code_abbrev(states, code):
     for i, j in enumerate(states):
         splitter = j.split(',')
         if splitter[2] == code:
             return splitter[1]
-
 'READ IN ASSOCIATED STATE ABBREVIATIONS WITH STATE FIPS CODES'
 def read_states():
     stateFileLocation = M_PATH + '\\'
     fname = stateFileLocation + 'ListofStates.csv'
     lines = open(fname).read().splitlines()
     return lines
-
 'RECONCILES READING INPUTS AS BYTES OR AS UNICODE CHARACTERS'
 def remove_b(teststring):
     if len(teststring) == 0:
@@ -51,7 +46,6 @@ def remove_b(teststring):
     else:
         newstr = teststring
     return newstr
-
 'Read in County Employment/Patronage File and Return List of All Locations in that county'
 def read_county_employment(fips):
     states = read_states()
@@ -62,12 +56,11 @@ def read_county_employment(fips):
     data2 = numpy.loadtxt(filepath, delimiter=',', dtype = object)
     [data.append(row.split(',')) for row in f]
     return data2
-        
 'Create Distribution of Work Industries Within A County'
 def read_county_industries(countydata):
     iset = []
     ind = []
-    'Create Key, Value Pairs for Industry Codes and Frequency of Industry'
+    'Create Key, Value Pairs for Industry Codes and Frequency of Industry Workers'
     for j in countydata:
         'Extract 2 Digit NAISC Code'
         industry = j[9][2:4]
@@ -81,7 +74,6 @@ def read_county_industries(countydata):
         for k in iset:
             if k[0] == industry: k[1]+=int(j[12][2:].strip("'"))
     return iset
-
 'Draw at Random An Industry From Weighted List, Return Industry Code, New Distribution, Number of Work Spots Left' 
 def select_industry(industrydist):
     keys = []
@@ -98,7 +90,6 @@ def select_industry(industrydist):
             j[1] = (temp)
             return j[0], industrydist, sum(vals)-1
     return j, industrydist, sum(vals)-1
-
 'Returns NAISC Code Corresponding to Index of Distribution'
 def dist_index_to_naisc_code(index):
     indextocode = [(0, 11), (1, 21), (2, 23), (3, 31), (4, 42), (5, 44), 
@@ -106,7 +97,6 @@ def dist_index_to_naisc_code(index):
                    (12, 55), (13, 56), (14, 61), (15, 62), (16, 71), (17, 72),
                    (18, 81), (19, 92)]
     return str(indextocode[index][1])
-
 'Read in and create 4 lists of employment and income by gender by industry for each county'    
 def read_employment_income_by_industry():    
     filepath = E_PATH + 'SexByIndustryByCounty_MOD.csv'
@@ -142,7 +132,6 @@ def read_employment_income_by_industry():
         womincodata.append(wominco)
     f.close()
     return menempdata, womempdata, menincodata, womincodata
-
 'Create CDF of Weighted List For Given Distribution'
 def cdf(weights):
     total=sum(weights)
@@ -152,40 +141,6 @@ def cdf(weights):
         cumsum+=w
         result.append(cumsum/total)
     return result
-
-def get_work_industry(workcounty, gender, income, menempdata, womempdata, menincodata, womincodata):
-    'Non-Worker'
-    if workcounty == '-1':
-        return -1, -1
-    'International Worker'
-    if workcounty == '-2':
-        return -2, -2
-    'Normal In-Country Worker'
-    count = 0
-
-    for j in menempdata:
-        if workcounty == j[1]:
-            index = count
-            break
-        count+=1
-    'Grab Distributions According to Gender of Worker'    
-    if gender == 0:
-        empdata = womempdata[index][3:]
-        incdata = womincodata[index][3:]
-    else:
-        empdata = menempdata[index][3:]
-        incdata = menincodata[index][3:]
-    'Create distribution'     
-    incdata[:] = [(x - income)**2 for x in incdata]
-    drawList = [x / y for x,y in zip(empdata, incdata)]
-    'Create CDF Weights'
-    weights = cdf(drawList)
-    x=random.random()
-    'Draw From Distribution'
-    idx=bisect.bisect(weights,x)
-    'Get Industry Code'
-    industry = dist_index_to_naisc_code(idx)
-    return industry, idx
  
 def get_work_industryA(workcounty, gender, income, menempdata, womempdata, menincodata, womincodata, markers):
     'Non-Worker'
@@ -208,7 +163,6 @@ def get_work_industryA(workcounty, gender, income, menempdata, womempdata, menin
     else:
         empdata = menempdata[index][3:]
         incdata = menincodata[index][3:]
-    
     'Zero Out Industries If No Employers Exist Within Actual Employment Data'
     count = 0
     for j in markers:
@@ -216,7 +170,6 @@ def get_work_industryA(workcounty, gender, income, menempdata, womempdata, menin
             empdata[count] = 0.0
             incdata[count] = 200000
         count+=1
-
     'Create distribution'     
     incdata[:] = [(x - income)**2 for x in incdata]
     drawList = [x / y for x,y in zip(empdata, incdata)]
