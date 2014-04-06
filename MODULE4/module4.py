@@ -102,11 +102,4 @@ def executive(state):
       
 import sys
 exec('executive(sys.argv[1])')   
-
-#distributions = readActivityPatternDistributions()
-#person = ['10', '001', '040900', '1044', '15848', '6', '39.164598', '-75.5279042', '10000042712', '51', '0', '3', '0', '0', '10001', '62', 'YMCA', '1137 S STATE ST', 'DOVER', 'DE', '19901', 'Kent', '624', 'OTHER INDIVIDUAL & FAMILY SERVICES', '0', '0', '206', '39.144766', '-75.521794', 'NA', 'NA', 'NA']
-#print(assignActivityPattern(3, distributions, person))
-
-#for j in range(0, 100000):
-#    if (assignActivityPattern(6, distributions) == 12): print('break'); break
         
