@@ -10,8 +10,7 @@ Purpose: This is the executive function for Task 3 (Module 3) that assigns a sch
 
 Dependencies: schoolCounty.py
 
-Notes: This procedure, because of its national scale, is entirely different than Mufti's statewide designations of community or non-community schools. 
-
+Notes: This procedure, because of its national scale, is entirely different than Mufti's statewide designations of community or non-community schools.
 '''
 
 from datetime import datetime
@@ -23,7 +22,6 @@ import module3classdump
 
 'Direction of School Data Base'
 schoolDataBase = "C://Users//Hill//Desktop//Thesis//Data//Schools//School Database//"
-
 'Constants for National Enrollment in Private and Public Schools'
 public_school_enrollment_elem_mid = 34637.0
 public_school_enrollment_high = 14668.0
@@ -32,7 +30,6 @@ private_school_enrollment_high = 1306.0
 total = public_school_enrollment_elem_mid + public_school_enrollment_high + private_school_enrollment_elem_mid + private_school_enrollment_high
 privtotal = private_school_enrollment_elem_mid + private_school_enrollment_high
 pubtotal = public_school_enrollment_elem_mid + public_school_enrollment_high
-
 'Using National Percentages of Enrollment in Private vs. Public, Use Ratios to Scale State Enrollment in Each'
 def scale_public_and_private(projHigh, projElemMid):
     # NATIONAL NUMBERS TO BE SCALED TO STATE LEVEL NUMBERS
@@ -48,7 +45,6 @@ def scale_public_and_private(projHigh, projElemMid):
     projectedPrivHigh = prop1 * projHigh
     projectedPublHigh = prop2 * projHigh
     return projectedPrivElemMid, projectedPublElemMid, projectedPrivHigh, projectedPublHigh
-
 'Read State Enrollment in Schools, Scaled Using Past Data'
 def read_state_enrollment(state):
     fileLocation = schoolDataBase + 'statehighelemmidenrollment.csv'
@@ -71,7 +67,6 @@ def read_state_enrollment(state):
             prop2 = stateelemmidenrollment2007 / statetotalenrollment2007
             projected2009elemmid = ((prop1+prop2)/2.0) * statetotalenrollment2009
             return projected2009high, projected2009elemmid
-        
 'Read Enrollment In State For Post-Secondary Schools by Type'        
 def read_post_sec_enrollment(state):
     fileLocation = schoolDataBase + 'stateenrollmentindegrees.csv'
@@ -84,7 +79,6 @@ def read_post_sec_enrollment(state):
             graduate = row[5]
             associates = row[6].strip('\n')
             return float(total), float(bachelor)+float(graduate), float(associates), float(row[2])
-        
 'Create Cumulative Distribution'
 def cdf(weights):
     total=sum(weights)
@@ -94,7 +88,6 @@ def cdf(weights):
         cumsum+=w
         result.append(cumsum/total)
     return result
-  
 'Assign Student a Type of School (Private/Public) or (Elem, Mid, High, College) Based on Age/HHT/State'  
 def get_school_type(age, gender, hht, homecounty, homestate, privelemmidpop, pubelemmidpop, privhighpop, pubhighpop,
                     fouryear, twoyear, nondeg):
@@ -129,12 +122,13 @@ def get_school_type(age, gender, hht, homecounty, homestate, privelemmidpop, pub
             else:
                 privelemmidpop-=1 
                 type2 = 'private'
-        # 14 - 18.5 -> MIDDLE SCHOOL (HALF ARE IN HIGH SCHOOL, HALF COLLEGE)
+        # 14 - 18ish -> HIGH SCHOOL (SOME 18's IN COLLEGE)
         elif age < 19:
             split = random.random()
-            if split > 0.35:
+            'Account for 18 Year Olds Who Are In College (approx 1/3)'
+            if age != 18 or split < 0.35:
                 type = 'high'
-            else: 
+            elif age == 18 and split > 0.35: 
                 type = 'college'; 
                 fouryearprop = fouryear / (fouryear +twoyear + nondeg)
                 split = random.random()
@@ -144,6 +138,8 @@ def get_school_type(age, gender, hht, homecounty, homestate, privelemmidpop, pub
                 else:
                     type2 = 'two year'
                     twoyear-=1
+            else:
+                type = 'high'
             if type == 'high':
                 puborpriv = random.random()
                 totalPop = pubhighpop + privhighpop
@@ -167,10 +163,7 @@ def get_school_type(age, gender, hht, homecounty, homestate, privelemmidpop, pub
             if idx == 0: fouryear-=1
             elif idx == 1: twoyear-=1
             else: nondeg-=1
-        #if type2 == 'private':
-        #    type2 = 'public'
         return type, type2, pubelemmidpop, privelemmidpop, pubhighpop, privhighpop, fouryear, twoyear, nondeg
-        
 '------------------------------------------------------------------------------------'
 'WRITE MODULE 2 OUTPUT HEADERS'
 def writeHeaders(pW):
@@ -234,7 +227,7 @@ def executive(state):
         'Get School For Student'
         school = homecounty.get_school_by_type(type1, type2, homelat, homelon)
         #print(school)
-        'Gather Output From School Selected (Need to Deal With Different Formats of School Data'
+        'Gather Output From School Selected (Need to Deal With Different Formats of School Data)'
         if school == 1 or school == 0:
             name = 'NA'
             schoollat = 'NA'
@@ -264,7 +257,6 @@ def executive(state):
         elif school != 1:
             studentCount+=1
         count+=1
-        #if studentCount > 10: break
         'Write School Output' '(School name, county, Lat, Lon, Enrollment)'
         personWriter.writerow(row + [name] + [county] + [schoollat] + [schoollon])
     print(state + " took this much time: " + str(datetime.now()-startTime))
@@ -274,5 +266,4 @@ def executive(state):
 
 import cProfile    
 import sys
-#exec('executive("Hawaii")')
 cProfile.run("exec('executive(sys.argv[1])')")
