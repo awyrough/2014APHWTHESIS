@@ -80,29 +80,20 @@ def getOtherTrip(originCounty, startLon, startLat, marker, homeCountyPatronage, 
             sets = homeCountyPatronage.otherCounties
     'County Patronage List'
     countyPatronage = sets[index]
-    #print(countyPatronage.patronCounts)
     'Select Industry of Patronage'
-    #print(sum(countyPatronage.patronCounts))
-    #print(countyPatronage.patronCounts)
     industry_weights = classDumpModule5.cdf(countyPatronage.patronCounts)
     split = random.random()
     idx = bisect.bisect(industry_weights, split)
     if countyPatronage.patronCounts[idx] > 5:
         countyPatronage.patronCounts[idx]-=1
     lists = countyPatronage.industries[idx]
-    if len(lists) > 10:
-        randoms = []
-        for j in range(0,10):
-            randoms.append(random.randint(0, len(lists) - 1))
-        lists = [countyPatronage.industries[idx][k] for k in randoms]
-    
     'Select Particular Place of Patronage'
     allDistances = []
     'Note: Restrictons on Geography are built into distance calculations'
     if marker == False:
-        [allDistances.append(float(j[12]) / (classDumpModule5.distance_between_points_normal(startLon, startLat, float(j[15]), float(j[16].strip('\n'))))) for j in lists]
+        [allDistances.append(float(j[12]) / (classDumpModule5.distance_between_points_normal(startLon, startLat, float(j[15]), float(j[16].strip('\n')))**2)) for j in lists]
     else:
-        [allDistances.append(float(j[12]) / (classDumpModule5.distance_between_points_w2w(startLon, startLat, float(j[15]), float(j[16].strip('\n'))))) for j in lists]
+        [allDistances.append(float(j[12]) / (classDumpModule5.distance_between_points_w2w(startLon, startLat, float(j[15]), float(j[16].strip('\n')))**2)) for j in lists]
     try:
         norm = sum(allDistances)
         [j/norm for j in allDistances]
@@ -113,7 +104,6 @@ def getOtherTrip(originCounty, startLon, startLat, marker, homeCountyPatronage, 
     else:
         weights = classDumpModule5.cdf(allDistances)
         split = random.random()
-        # print(weights); print(split)
         index = bisect.bisect(weights, split)
     if int(countyPatronage.industries[idx][index][12]) > 1:
         countyPatronage.industries[idx][index][12] = int(countyPatronage.industries[idx][index][12]) - 1
@@ -136,8 +126,6 @@ class patronageCounty:
         self.create_industryLists()
         self.distributions = []
         self.spots = []
-        #self.create_industry_distributions()
-        
     'Partition Employers/Patrons into Industries'
     def create_industryLists(self):
         agr = []; mqo = []; con = []; man = []; wtr = []; rtr = []
@@ -159,7 +147,6 @@ class patronageCounty:
                     number = 10000
             else:
                 number = int(j[12])
-            
             if (code == 11): agr.append(j); agrCount+=number
             elif (code == 21): mqo.append(j); mqoCount+=number
             elif (code == 23): con.append(j); conCount+=number
@@ -184,9 +171,9 @@ class patronageCounty:
         self.industries = [agr, mqo, con, man, wtr, rtr, tra, uti,
                            inf, fin, rer, pro, mgt, adm, edu, hea,
                            art, aco, otr, pub]     
-        self.patronCounts = [int(0.5*agrCount), int(0.5*mqoCount), int(0.5*conCount), int(0.5*manCount), wtrCount, rtrCount, traCount, utiCount,
+        self.patronCounts = [int(agrCount), int(mqoCount), int(conCount), int(manCount), wtrCount, rtrCount, traCount, utiCount,
                            infCount, finCount, rerCount, proCount, mgtCount, admCount, eduCount, heaCount,
-                           int(4*artCount), int(4*acoCount), otrCount, pubCount] 
+                           int(artCount), int(acoCount), otrCount, pubCount] 
         return 
     
 class patronageWarehouse:
@@ -205,10 +192,5 @@ def read_county_employment(fips):
     filepath = dataRoot + 'Employment\\CountyEmployeeFiles\\' + abbrev + '\\' + fips + '_' + abbrev + '_EmpPatFile.csv'
     f = open(filepath, 'r+')
     data = []
-   # data2 = numpy.loadtxt(filepath, delimiter=',', dtype = object)
     [data.append(row.split(',')) for row in f]
     return data
-
-#test = patronageCounty('30001')
-#print(test.FIPS)
-#print(test.patronCounts)
