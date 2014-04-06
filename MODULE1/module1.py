@@ -17,13 +17,13 @@ See accompanying documentation (i.e. Thesis 2014)
 Dependencies: None
 
 Notes: This code is adapted from Talal Mufti and Jake Gao. Mufti wrote the initial framework for his
-Masters Thesis in 2012 for the state of NJ. Aside from adapting the code for a more general input, more
-data, and 51 states instead of several hard coded counties, the bulk of the original changes include:
+Masters Thesis in 2012 for the state of NJ. Aside from adapting the code for a more general input,
+more data, and 51 states instead of several hard coded counties, the bulk of the original changes
+include:
 
 - Selection with replacement
 - Creation of Households (see: householdhelper and build_households)
-- Data input
-
+- Data input and output
           '''
 ###################################################################################################
 # IMPORTS
@@ -34,18 +34,15 @@ import numpy as np
 from numpy import * 
 from datetime import datetime
 from itertools import chain
-
 ###################################################################################################
 # STATIC DATA DEFINITIONS
 ################################################################################################### 
 
 'MAIN PATH ON MY COMPUTER TOWARDS FILES OF USE'
 M_PATH = "C:\\Users\\Hill\\Desktop\\Thesis\\Data"
-
 'DEFINE AGE RANGES FROM CENSUS'
 ageRanges = [(0,4) , (5,9) , (10,14) , (15,17), (18,19), (20,20), (21,21), (22,24), (25,29), (30,34),\
             (35,39), (40,44), (45,49), (50,54), (55,59), (60,61), (62,64), (65,66), (67,69) , (70, 74), (75,79), (80,84), (85,100) ]
-
 'DEFINE INCOME BRACKET RANGES'
 INCOME_BRACKETS = {     1: (0, 9999),
                         2: (10000,14999),
