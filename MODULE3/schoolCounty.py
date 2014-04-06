@@ -11,20 +11,15 @@ object that houses all the enrollment data for a particular county and its geogr
 and then a particular school given that county and type of school.
 
 Dependencies: None
-
 Notes: 
-
 '''
-
 import countyAdjacencyReader
 import csv
 import math
 import random
 import bisect
-
 'File Location of School Data'
 schoolDataBase = "C:\\Users\\Hill\\Desktop\\Thesis\\Data\\Schools\\School Database\\"
-
 'Create Cumulative Distribution'
 def cdf(weights):
     total=sum(weights)
@@ -34,7 +29,6 @@ def cdf(weights):
         cumsum+=w
         result.append(cumsum/total)
     return result
-
 'SchoolCounty Object: An object for housing the entire school data for a particular county, and points to its neighbors. '
 class schoolCounty:
     def __init__(self, fips):
@@ -54,14 +48,12 @@ class schoolCounty:
         self.nondist = []
         self.neighborlyschools = []
         self.options = []
-    
     'Find and Initialize Neighbors of Home County'
     def assemble_neighborly_dist(self, fips):
         neighborlyschools = []
         for j in self.county.neighbors:
             neighborlyschools.append(schoolCounty(j))
         self.neighborlyschools = neighborlyschools
-        
     'Calculate the Total Enrollment of a County'
     def get_total_seats(self):
         seats = 0
@@ -78,7 +70,6 @@ class schoolCounty:
         for k in self.highprivate:
             seats+= int(k[7])
         return seats
-    
     'Create a Distribution of All Counties relative to Home County'
     def school_county_dist(self):
         options = []
@@ -101,12 +92,10 @@ class schoolCounty:
             seats = 0
             idx+=1
         self.options = options
-        
     'Select A County of Schooling Given Home county and types'
     def select_school_county(self, type1, type2):  
         if len(self.county.neighbors) == 0:
             return 'home county'
-
         newOptions = []
         idx = 0
         seats = 0
@@ -140,23 +129,23 @@ class schoolCounty:
         if type2 == 'private':
             if type1 == 'elem': 
                 if len(self.elemprivate) != 0:
-                    dists.append(float(self.totalseats) / (min(allDistances) * 0.0750)**2)
+                    dists.append(float(self.totalseats) / (min(allDistances) * 0.750)**2)
             elif type1 == 'mid':
                 if len(self.midprivate) != 0:
-                    dists.append(float(self.totalseats) / (min(allDistances) * 0.0750)**2)
+                    dists.append(float(self.totalseats) / (min(allDistances) * 0.750)**2)
             elif type1 == 'high':
                 if len(self.highprivate) != 0:
-                    dists.append(float(self.totalseats) / (min(allDistances) * 0.0750)**2)
+                    dists.append(float(self.totalseats) / (min(allDistances) * 0.750)**2)
         if type2 == 'public':
             if type1 == 'elem': 
                 if len(self.elempublic) != 0:
-                    dists.append(float(self.totalseats) / (min(allDistances) * 0.0750)**2)
+                    dists.append(float(self.totalseats) / (min(allDistances) * 0.750)**2)
             elif type1 == 'mid':
                 if len(self.midpublic) != 0:
-                    dists.append(float(self.totalseats) / (min(allDistances) * 0.0750)**2)
+                    dists.append(float(self.totalseats) / (min(allDistances) * 0.750)**2)
             elif type1 == 'high':
                 if len(self.highpublic) != 0:
-                    dists.append(float(self.totalseats) / (min(allDistances) * 0.0750)**2)
+                    dists.append(float(self.totalseats) / (min(allDistances) * 0.750)**2)
         if sum(dists) == 0:
             return 'change'
         if sum(dists) != 0:
@@ -316,7 +305,7 @@ class schoolCounty:
     'Draw College Institution From List'
     def drawCollege(self, schoolList, schools, homelat, homelon):
         weights= []
-        [weights.append(float(j[1]) / (distance_between_counties(float(j[len(j)-2]), float(j[len(j)-1]), homelat, homelon) )) for j in schoolList]
+        [weights.append(float(j[1]) / (distance_between_counties(float(j[len(j)-2]), float(j[len(j)-1]), homelat, homelon)**2)) for j in schoolList]
         cdf2 = cdf(weights)
         split = random.random()
         idx = bisect.bisect(cdf2, split)
@@ -454,12 +443,3 @@ def get_scale_factor(fips, state, statefouryear, statetwoyear, statenodeg):
     countytwoyear = req[1]*statetwoyear
     countynodeg = req[1]*statenodeg
     return countyfouryear, countytwoyear, countynodeg
-
-
-#countyPop = get_scale_factor('10003', '10', 10000, 20000 ,1500)
-#print(countyPop)
-
-#test.scale_school_employment_to_students(0, 0, 0)
-#for row in test.fouryear:
-#    print(row)
-#test.county.print_county()
