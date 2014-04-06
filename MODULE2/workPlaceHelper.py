@@ -6,15 +6,14 @@ Author: A.P. Hill Wyrough
 version date: 3/23/14
 Python 3.3
 
-Purpose: This set of methods and classes provides operations enabling the selection of a work place for a worker. It reads in employment files
+PURPOSE: This set of methods and classes provides operations enabling the selection of a work place for a worker. It reads in employment files
 for a particular county, creates lists of employers by industry, and provides classes for creating distributions and selecting employers. 
 
 Relies on access to Emp Pat Files For All States and All counties
 
-Dependencies: industryReader.py; countyAdjacencyReader.py
+DEPENDENCIES: industryReader.py; countyAdjacencyReader.py
 
-Note: This is all original work, none of these methods are taken from Mufti's Module 2, as they are performed entirely in a new fashion.
-
+NOTE: This is all original work, none of these methods are taken from Mufti's Module 2, as they are performed entirely in a new fashion.
 """
 
 """ Initialize a work county and return the entire object """
@@ -23,7 +22,7 @@ import countyAdjacencyReader
 import random
 import bisect
 
-
+'Working County Object - To Hold All Emp-Pat Data For a Given County'
 class workingCounty:
     'Initialize with FIPS'
     def __init__(self, fips):
@@ -36,11 +35,9 @@ class workingCounty:
         self.distributions = []
         self.spots = []
         self.create_industry_distributions()
-        
     'Print County For Testing Purposes'
     def printCounty(self):
         self.county.print_county()
-
     'Partition Employers/Patrons into Industries'
     def create_industryLists(self):
         agr = []; mqo = []; con = []; man = []; wtr = []; rtr = []
@@ -127,25 +124,6 @@ class workingCounty:
         employer = self.select_employer(index, lat, lon, wC)
         return indust, index, employer    
 
-    'Select From Distribution'
-    'Call This Method With Work Industry Index and Residence Lat/Lon of Employee'
-    'Deprecated: NOT USED'
-    def select_employer(self, industryIndex, lat, lon, wC):
-        'Grab Correct Distribution From Distribution List'
-        dist = self.distributions[industryIndex]
-        spots = self.spots[industryIndex]
-        if len(dist) == 0:
-            return False
-        'Select Employer From Distribution List, By Row Pointer'
-        index = self.create_specific_distribution(dist, spots, lat, lon)
-        'Grab Employer From Employer List by Grabbing Right Row Pointer'
-        employer = self.industries[industryIndex][index]
-        'Decrement Employer Worker Count in Distribution'
-        self.distributions[industryIndex][index][1]-=1
-        'Return Distribution and Employer'
-        employer[len(employer)-1] = employer[len(employer) - 1].strip('\n')
-        return employer
-
 def weight_my_list(drawList):
     normFactor = sum(drawList)
     weightedlist =  [x/normFactor for x in drawList]
@@ -154,5 +132,5 @@ def weight_my_list(drawList):
 def spots_to_distances(dist, spots, lat, lon):
     'Get List of # of Workers, Calculate Distance From Home to all Employers'
     'Calculate Pre-Normalized Weighted List (# of workers / Dij^2) for all employers j in county i'
-    drawList = [float(s)/(countyAdjacencyReader.distance_between_counties(lat, lon, j[2] , j[3])) for s, j in zip(spots, dist)]
+    drawList = [float(s)/(countyAdjacencyReader.distance_between_points(lat, lon, j[2] , j[3])**2) for s, j in zip(spots, dist)]
     return drawList       
