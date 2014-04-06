@@ -1,3 +1,17 @@
+'''
+module4.py
+
+Project: United States Trip File Generation
+Author: A.P. Hill Wyrough
+version date: 3/15/2014
+Python 3.3
+
+PURPOSE: Assign Each Resident an Activity Pattern
+INPUTS: Activity Pattern Distributions
+DEPENDENCIES: None
+'''
+
+
 import csv
 from datetime import datetime
 import random
