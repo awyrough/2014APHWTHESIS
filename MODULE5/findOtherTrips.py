@@ -1,3 +1,12 @@
+'''
+
+findOtherTrip.py
+
+For each Other trip in a daily trip tour, draw from industry distributions and from patronage distributions.
+
+'''
+
+
 import classDumpModule5
 import numpy
 import random
