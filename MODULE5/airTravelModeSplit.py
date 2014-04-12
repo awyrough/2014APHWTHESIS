@@ -3,7 +3,7 @@ module1.py
 
 Project: United States Trip File Generation - Module 1
 Author: A.P. Hill Wyrough
-version date: 3/15/2014
+version date: 4/12/2014
 Python 3.3
 
 Purpose: This is a procedural method to introduce mode split into the model. It reads already processed files by Module 5 and revises all the possible
