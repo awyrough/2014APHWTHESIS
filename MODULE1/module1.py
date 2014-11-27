@@ -16,8 +16,8 @@ See accompanying documentation (i.e. Thesis 2014)
 
 Dependencies: None
 
-Notes: This code is adapted from Talal Mufti and Jake Gao. Mufti wrote the initial framework for his
-Masters Thesis in 2012 for the state of NJ. Aside from adapting the code for a more general input,
+Notes: This code is adapted from Talal Mufti and Jake Gao. Mufti wrote the initial New Jersey specific synthesizer for his
+Masters Thesis in 2012 for the state of NJ. Aside from adapting the code for a more general input (any state),
 more data, and 51 states instead of several hard coded counties, the bulk of the original changes
 include:
 
